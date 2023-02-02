@@ -1,0 +1,70 @@
+
+=begin
+ 
+ DOCS
+ 
+ Commands:
+ - bundle exec fastlane match development --readonly || Sirve para obtener los certificados
+ - bundle exec fastlane match development --force || Sirve para actualizar los certificados cuando se agregar un dispositivo
+ - fastlane add_device device_info:"[device=Phone 6=944e21b3875dc7374dc4ba9ff3d701af39884036]" || Sirve para agregar un dispisitivo a los certs de dev.
+
+ Tips:
+ - Change the syntax highlighting to Ruby
+ - To ignore the version increment and git commit use fastlane lanename ignoreversion:""
+ - Appetize: Each proyect must have its own account. Example: bemobile_fastlane_busup@mailinator.com - pass: bemobile_fastlane_busup
+ 
+=end
+
+import "./Foundation/Build.rb"
+import "./Foundation/Device.rb"
+import "./Foundation/Distribution.rb"
+import "./Foundation/Git.rb"
+import "./Foundation/Project.rb"
+import "./Foundation/Slack.rb"
+import "./Foundation/Test.rb"
+import "./Foundation/Version.rb"
+
+# This is the minimum version number required.
+fastlane_version "2.128.1"
+
+default_platform :multiproject
+
+platform :multiproject do
+
+############################## PRE - POST - ERROR HANDLER ##############################
+
+before_all do
+  git_func_save_changelog_in_env_var()
+end
+
+after_all do |lane|
+# This lane is called, only if the executed lane was successfu
+end
+
+
+#===================================== ANDROID =====================================#
+
+lane :android_firebase_debug do |options|
+  app_info = project_func_get_information(environment: CONST_PROJECT_ENVIRONMENT__DEV)
+
+  if options[:ignoreversion] == nil
+    version_func_update_build_number_for_android(app_information: app_info)
+  end
+
+  build_func_gradle(app_information: app_info)
+  distribution_func_send_to_firebase(app_information: app_info, platform_type: CONST_PROJECT_TYPE__ANDROID)
+end
+
+lane :android_firebase_prod do |options|
+  app_info = project_func_get_information(environment: CONST_PROJECT_ENVIRONMENT__PROD)
+
+  if options[:ignoreversion] == nil
+    version_func_update_build_number_for_android(app_information: app_info)
+  end
+
+  build_func_gradle(app_information: app_info)
+  distribution_func_send_to_firebase(app_information: app_info, platform_type: CONST_PROJECT_TYPE__ANDROID)
+end
+
+end
+
