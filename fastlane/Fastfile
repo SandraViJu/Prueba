@@ -66,5 +66,9 @@ lane :android_firebase_prod do |options|
   distribution_func_send_to_firebase(app_information: app_info, platform_type: CONST_PROJECT_TYPE__ANDROID)
 end
 
+lane :android_firebase_prueba do |options|
+  puts "Hello"
+end
+
 end
 
